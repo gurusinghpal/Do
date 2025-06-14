@@ -6,6 +6,7 @@ import com.doubtapp.backend.service.DoubtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 
@@ -18,17 +19,26 @@ public class DoubtController {
     private DoubtService doubtService;
 
     @PostMapping("/post")
-    public ResponseEntity<Doubt> postDoubt(@RequestBody Doubt doubt) {
-        return ResponseEntity.ok(doubtService.postDoubt(doubt));
+    public ResponseEntity<?> postDoubt(@RequestBody Doubt doubt) {
+        try {
+            return ResponseEntity.ok(doubtService.postDoubt(doubt));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        }
     }
 
     @PostMapping("/answer/{id}")
-    public ResponseEntity<Doubt> answerDoubt(
+    public ResponseEntity<?> answerDoubt(
             @PathVariable Long id,
             @RequestBody AnswerRequest request) {
-        return ResponseEntity.ok(doubtService.answerDoubt(id, request.getAnswer(), request.getMentorEmail()));
+        try {
+            return ResponseEntity.ok(doubtService.answerDoubt(id, request.getAnswer(), request.getMentorEmail()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        }
     }
-
 
     @GetMapping("/all")
     public ResponseEntity<List<Doubt>> getAll() {
@@ -36,8 +46,13 @@ public class DoubtController {
     }
 
     @GetMapping("/student")
-    public ResponseEntity<List<Doubt>> getByStudent(@RequestParam String email) {
-        return ResponseEntity.ok(doubtService.getDoubtsByStudent(email));
+    public ResponseEntity<?> getByStudent(@RequestParam String email) {
+        try {
+            return ResponseEntity.ok(doubtService.getDoubtsByStudent(email));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        }
     }
 
     @GetMapping("/status")
@@ -45,9 +60,26 @@ public class DoubtController {
         return ResponseEntity.ok(doubtService.getDoubtsByStatus(status));
     }
 
-
     @GetMapping("/mentor")
-    public ResponseEntity<List<Doubt>> getByMentor(@RequestParam String email) {
-        return ResponseEntity.ok(doubtService.getDoubtsByMentor(email));
+    public ResponseEntity<?> getByMentor(@RequestParam String email) {
+        try {
+            return ResponseEntity.ok(doubtService.getDoubtsByMentor(email));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    // Simple error response class
+    private static class ErrorResponse {
+        private final String message;
+
+        public ErrorResponse(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
     }
 }
