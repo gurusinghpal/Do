@@ -35,3 +35,4 @@ An intelligent and interactive platform that connects students with mentors and 
 ```bash
 cd backend/
 mvn clean install
+npm start
