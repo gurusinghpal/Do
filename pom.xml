@@ -112,11 +112,7 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
-		<repository>
-			<id>google-ai</id>
-			<name>Google AI</name>
-			<url>https://maven.pkg.dev/google-ai/generative-ai</url>
-		</repository>
+
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
