@@ -1,5 +1,7 @@
 package com.doubtapp.backend.service;
 
+import com.doubtapp.backend.dto.MentorUpdateRequest;
+import com.doubtapp.backend.dto.StudentUpdateRequest;
 import com.doubtapp.backend.model.Doubt;
 import com.doubtapp.backend.model.User;
 import com.doubtapp.backend.repository.DoubtRepository;
@@ -13,6 +15,7 @@ import jakarta.transaction.Transactional;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class DoubtService {
@@ -34,6 +37,30 @@ public class DoubtService {
     @Transactional
     public Doubt postDoubt(Doubt doubt) {
         logger.info("Attempting to post doubt: {}", doubt);
+
+        // Validate student email
+        if (doubt.getStudentEmail() == null || doubt.getStudentEmail().trim().isEmpty()) {
+            throw new RuntimeException("Student email is required");
+        }
+
+        // If mentor is assigned, validate mentor email and existence
+        if (doubt.getMentorEmail() != null && !doubt.getMentorEmail().trim().isEmpty()) {
+            // Validate email format
+            if (!doubt.getMentorEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+                throw new RuntimeException("Invalid mentor email format");
+            }
+            
+            // Check if mentor exists and is actually a mentor
+            Optional<User> mentorOpt = Optional.ofNullable(userRepository.findByEmail(doubt.getMentorEmail()));
+            if (mentorOpt.isEmpty()) {
+                throw new RuntimeException("Mentor not found");
+            }
+            
+            User mentor = mentorOpt.get();
+            if (!"MENTOR".equals(mentor.getRole())) {
+                throw new RuntimeException("The specified user is not a mentor");
+            }
+        }
 
         // Validate student email
         logger.info("Validating student email: {}", doubt.getStudentEmail());
@@ -150,6 +177,68 @@ public class DoubtService {
         doubt.setStatus("answered");
         doubt.setMentorEmail(mentorEmail);
 
+        return doubtRepository.save(doubt);
+    }
+
+    public Doubt updateDoubtByStudent(Long id, StudentUpdateRequest request) {
+        Doubt doubt = doubtRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Doubt not found"));
+
+        if (!doubt.getStudentEmail().equals(request.getStudentEmail())) {
+            throw new RuntimeException("Student can only update their own doubts");
+        }
+
+        if (!"pending".equals(doubt.getStatus())) {
+            throw new RuntimeException("Cannot update doubt as it has already been answered");
+        }
+
+        doubt.setTitle(request.getTitle());
+        doubt.setDescription(request.getDescription());
+        return doubtRepository.save(doubt);
+    }
+
+    public Doubt updateDoubtByMentor(Long id, MentorUpdateRequest request) {
+        Doubt doubt = doubtRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Doubt not found"));
+
+        if (!doubt.getMentorEmail().equals(request.getMentorEmail())) {
+            throw new RuntimeException("Mentor can only update doubts assigned to them");
+        }
+
+        doubt.setAnswer(request.getAnswer());
+        doubt.setStatus("answered");
+        return doubtRepository.save(doubt);
+    }
+
+    public void deleteDoubtByStudent(Long id, String studentEmail) {
+        Doubt doubt = doubtRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Doubt not found"));
+
+        if (!doubt.getStudentEmail().equals(studentEmail)) {
+            throw new RuntimeException("Student can only delete their own doubts");
+        }
+
+        if (!"pending".equals(doubt.getStatus())) {
+            throw new RuntimeException("Cannot delete doubt as it has already been answered");
+        }
+
+        doubtRepository.delete(doubt);
+    }
+
+    public Doubt deleteAnswerByMentor(Long id, String mentorEmail) {
+        Doubt doubt = doubtRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Doubt not found"));
+
+        if (doubt.getMentorEmail() == null || !doubt.getMentorEmail().equals(mentorEmail)) {
+            throw new RuntimeException("Mentor can only delete answers from doubts assigned to them");
+        }
+
+        if (doubt.getAnswer() == null || doubt.getAnswer().trim().isEmpty()) {
+            throw new RuntimeException("No answer exists to delete");
+        }
+
+        doubt.setAnswer(null);
+        doubt.setStatus("pending");
         return doubtRepository.save(doubt);
     }
 }

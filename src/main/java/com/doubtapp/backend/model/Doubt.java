@@ -30,13 +30,18 @@ public class Doubt {
     @Column(name = "answer_type")
     private String answerType;
 
-    public Doubt(String title, String description, String studentEmail) {
+    public Doubt(String title, String description, String studentEmail, String mentorEmail) {
         this.title = title;
         this.description = description;
         this.studentEmail = studentEmail;
+        this.mentorEmail = mentorEmail;
         this.status = "pending";
         this.postedAt = new Date();
         this.answerType = "MENTOR";
+    }
+
+    public Doubt(String title, String description, String studentEmail) {
+        this(title, description, studentEmail, null);
     }
 
     @PrePersist

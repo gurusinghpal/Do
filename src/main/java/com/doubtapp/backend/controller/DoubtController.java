@@ -1,6 +1,8 @@
 package com.doubtapp.backend.controller;
 
 import com.doubtapp.backend.dto.AnswerRequest;
+import com.doubtapp.backend.dto.StudentUpdateRequest;
+import com.doubtapp.backend.dto.MentorUpdateRequest;
 import com.doubtapp.backend.model.Doubt;
 import com.doubtapp.backend.service.DoubtService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +66,55 @@ public class DoubtController {
     public ResponseEntity<?> getByMentor(@RequestParam String email) {
         try {
             return ResponseEntity.ok(doubtService.getDoubtsByMentor(email));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @PutMapping("/student/{id}")
+    public ResponseEntity<?> updateDoubtByStudent(
+            @PathVariable Long id,
+            @RequestBody StudentUpdateRequest request) {
+        try {
+            return ResponseEntity.ok(doubtService.updateDoubtByStudent(id, request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @PutMapping("/mentor/{id}")
+    public ResponseEntity<?> updateDoubtByMentor(
+            @PathVariable Long id,
+            @RequestBody MentorUpdateRequest request) {
+        try {
+            return ResponseEntity.ok(doubtService.updateDoubtByMentor(id, request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/student/{id}")
+    public ResponseEntity<?> deleteDoubtByStudent(
+            @PathVariable Long id,
+            @RequestParam String studentEmail) {
+        try {
+            doubtService.deleteDoubtByStudent(id, studentEmail);
+            return ResponseEntity.ok().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/mentor/answer/{id}")
+    public ResponseEntity<?> deleteAnswerByMentor(
+            @PathVariable Long id,
+            @RequestParam String mentorEmail) {
+        try {
+            return ResponseEntity.ok(doubtService.deleteAnswerByMentor(id, mentorEmail));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse(e.getMessage()));
