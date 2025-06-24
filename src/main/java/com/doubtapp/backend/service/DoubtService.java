@@ -4,6 +4,7 @@ import com.doubtapp.backend.dto.MentorUpdateRequest;
 import com.doubtapp.backend.dto.StudentUpdateRequest;
 import com.doubtapp.backend.model.Doubt;
 import com.doubtapp.backend.model.User;
+import com.doubtapp.backend.model.UserRole;
 import com.doubtapp.backend.repository.DoubtRepository;
 import com.doubtapp.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +58,7 @@ public class DoubtService {
             }
             
             User mentor = mentorOpt.get();
-            if (!"MENTOR".equals(mentor.getRole())) {
+            if (mentor.getRole() != UserRole.MENTOR) {
                 throw new RuntimeException("The specified user is not a mentor");
             }
         }
@@ -78,7 +79,7 @@ public class DoubtService {
         }
 
         logger.info("User role: {}", student.getRole());
-        if (!"student".equalsIgnoreCase(student.getRole())) {
+        if (student.getRole() != UserRole.STUDENT) {
             logger.error("User found but with incorrect role. Expected: student, Found: {}", student.getRole());
             throw new RuntimeException("Invalid student email. Only registered students can post doubts.");
         }
@@ -141,7 +142,7 @@ public class DoubtService {
     public List<Doubt> getDoubtsByStudent(String email) {
         // Validate student email
         User student = userRepository.findByEmail(email);
-        if (student == null || !"student".equalsIgnoreCase(student.getRole())) {
+        if (student == null || student.getRole() != UserRole.STUDENT) {
             throw new RuntimeException("Invalid student email");
         }
         return doubtRepository.findByStudentEmail(email);
@@ -151,7 +152,7 @@ public class DoubtService {
     public List<Doubt> getDoubtsByMentor(String email) {
         // Validate mentor email
         User mentor = userRepository.findByEmail(email);
-        if (mentor == null || !"mentor".equalsIgnoreCase(mentor.getRole())) {
+        if (mentor == null || mentor.getRole() != UserRole.MENTOR) {
             throw new RuntimeException("Invalid mentor email");
         }
         return doubtRepository.findByMentorEmail(email);
@@ -166,7 +167,7 @@ public class DoubtService {
     public Doubt answerDoubt(Long id, String answer, String mentorEmail) {
         // Validate mentor email
         User mentor = userRepository.findByEmail(mentorEmail);
-        if (mentor == null || !"mentor".equalsIgnoreCase(mentor.getRole())) {
+        if (mentor == null || mentor.getRole() != UserRole.MENTOR) {
             throw new RuntimeException("Only registered mentors can answer doubts");
         }
 
