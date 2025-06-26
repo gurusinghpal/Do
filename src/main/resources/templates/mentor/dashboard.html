@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        .header {
+            background: #fff;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header .logo {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #764ba2;
+        }
+
+        .header .nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .header .nav a.logout {
+            color: #e74c3c;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .welcome-banner h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Doubt Solver</div>
+        <nav class="nav">
+            <a href="#" class="active">Assigned Doubts</a>
+            <a href="#">Profile</a>
+            <a th:href="@{/logout}" class="logout">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="welcome-banner">
+            <h1>Welcome, Mentor!</h1>
+            <p>Here you can view and answer doubts assigned to you or visible to all mentors.</p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Doubts for You</h2>
+        </div>
+
+        <div th:if="${#lists.isEmpty(doubts)}">
+            <p>No doubts assigned or available for you.</p>
+        </div>
+        <div th:if="${!#lists.isEmpty(doubts)}">
+            <table style="width:100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden;">
+                <thead style="background: #764ba2; color: #fff;">
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Title</th>
+                        <th style="padding: 12px; text-align: left;">Student</th>
+                        <th style="padding: 12px; text-align: left;">Status</th>
+                        <th style="padding: 12px; text-align: left;">Answer Type</th>
+                        <th style="padding: 12px; text-align: left;">Assigned Mentor</th>
+                        <th style="padding: 12px; text-align: left;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="doubt : ${doubts}">
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;" th:text="${doubt.title}"></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;" th:text="${doubt.studentEmail}"></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;" th:text="${doubt.status}"></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;" th:text="${doubt.answerType}"></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;" th:text="${doubt.mentorEmail != null ? doubt.mentorEmail : 'Any Mentor'}"></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <a th:href="@{'/mentor/doubt/' + ${doubt.id}}" style="color: #764ba2; text-decoration: underline;">View / Answer</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html> 

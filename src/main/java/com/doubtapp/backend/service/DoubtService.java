@@ -174,11 +174,15 @@ public class DoubtService {
         Doubt doubt = doubtRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Doubt not found"));
 
-        doubt.setAnswer(answer);
-        doubt.setStatus("answered");
-        doubt.setMentorEmail(mentorEmail);
-
-        return doubtRepository.save(doubt);
+        // Allow any mentor to answer if unassigned or assigned to them
+        if (doubt.getMentorEmail() == null || doubt.getMentorEmail().isBlank() || doubt.getMentorEmail().equals(mentorEmail)) {
+            doubt.setAnswer(answer);
+            doubt.setStatus("answered");
+            doubt.setMentorEmail(mentorEmail);
+            return doubtRepository.save(doubt);
+        } else {
+            throw new RuntimeException("This doubt is assigned to another mentor");
+        }
     }
 
     public Doubt updateDoubtByStudent(Long id, StudentUpdateRequest request) {

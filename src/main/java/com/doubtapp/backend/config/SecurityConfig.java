@@ -26,6 +26,9 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Publicly accessible pages and static resources
+                        .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
+
                         // Admin-only endpoints
                         .requestMatchers("/api/test/**").hasRole("ADMIN")
 
@@ -46,7 +49,17 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .userDetailsService(jpaUserDetailsService)
-                .httpBasic(Customizer.withDefaults());
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .defaultSuccessUrl("/dashboard", true)
+                        .failureUrl("/login?error")
+                        .permitAll()
+                )
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                );
 
         return http.build();
     }

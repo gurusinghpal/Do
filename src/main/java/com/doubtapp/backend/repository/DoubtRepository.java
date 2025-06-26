@@ -13,4 +13,5 @@ public interface DoubtRepository extends JpaRepository<Doubt, Long> {
     List<Doubt> findByMentorEmail(String email);
     List<Doubt> findByStatus(String status);
     Optional<Doubt> findTopByOrderByIdDesc();
+    List<Doubt> findByMentorEmailOrMentorEmailIsNull(String email);
 }

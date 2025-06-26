@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+
+        .header {
+            background: #fff;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .header .logo {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #764ba2;
+        }
+
+        .header .nav a {
+            margin-left: 20px;
+            text-decoration: none;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .header .nav a.logout {
+            color: #e74c3c;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .welcome-banner h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Doubt Solver</div>
+        <nav class="nav">
+            <a href="#" class="active">My Doubts</a>
+            <a th:href="@{/student/ask-doubt}">Ask a Question</a>
+            <a href="#">Profile</a>
+            <a th:href="@{/logout}" class="logout">Logout</a>
+        </nav>
+    </div>
+
+    <div class="container">
+        <div class="welcome-banner">
+            <h1>Welcome, Student!</h1>
+            <p>Here you can manage your doubts, ask new questions, and track their status.</p>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Your Recent Doubts</h2>
+            <a th:href="@{/student/ask-doubt}" class="btn" style="width: auto; padding: 10px 28px; font-size: 1em;">+ Ask a Doubt</a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(doubts)}">
+            <p>You have no recent doubts.</p>
+        </div>
+        <div th:if="${!#lists.isEmpty(doubts)}">
+            <table style="width:100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden;">
+                <thead style="background: #764ba2; color: #fff;">
+                    <tr>
+                        <th style="padding: 12px; text-align: left;">Title</th>
+                        <th style="padding: 12px; text-align: left;">Status</th>
+                        <th style="padding: 12px; text-align: left;">Answer Type</th>
+                        <th style="padding: 12px; text-align: left;">Mentor</th>
+                        <th style="padding: 12px; text-align: left;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="doubt : ${doubts}">
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;" th:text="${doubt.title}"></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;" th:text="${doubt.status}"></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <span th:text="${doubt.answerType}"></span>
+                            <span th:if="${doubt.answerType == 'AI'}" style="background: #ffd700; color: #764ba2; font-size: 0.85em; font-weight: 600; border-radius: 6px; padding: 2px 8px; margin-left: 6px;">AI</span>
+                        </td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;" th:text="${doubt.mentorEmail != null ? doubt.mentorEmail : 'Any Mentor / AI'}"></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #eee;">
+                            <a th:href="@{'/student/doubt/' + ${doubt.id}}" style="background: #764ba2; color: #fff; border-radius: 50px; padding: 10px 28px; font-size: 1em; text-decoration: none; display: inline-block;">View</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html> 

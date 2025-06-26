@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doubt Details - Student</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 60px auto;
+            background: rgba(255,255,255,0.12);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2);
+            padding: 40px 32px;
+            color: #fff;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            margin-bottom: 18px;
+        }
+        .doubt-info {
+            margin-bottom: 30px;
+        }
+        .doubt-info label {
+            font-weight: 500;
+            color: #e0e0e0;
+            display: block;
+            margin-top: 12px;
+        }
+        .doubt-info span {
+            display: block;
+            margin-top: 2px;
+            color: #fff;
+            font-weight: 400;
+        }
+        .answer-section {
+            margin-top: 30px;
+        }
+        .answered {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 18px;
+            font-weight: 500;
+        }
+        .pending {
+            background: rgba(241, 196, 15, 0.15);
+            color: #f1c40f;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 18px;
+            font-weight: 500;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 18px;
+            color: #fff;
+            text-decoration: underline;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a th:href="@{/student/dashboard}" class="back-link">&larr; Back to Dashboard</a>
+        <h1>Doubt Details</h1>
+        <div class="doubt-info">
+            <label>Title</label>
+            <span th:text="${doubt.title}"></span>
+            <label>Description</label>
+            <span th:text="${doubt.description}"></span>
+            <label>Status</label>
+            <span th:text="${doubt.status}"></span>
+            <label>Answer Type</label>
+            <span>
+                <span th:text="${doubt.answerType}"></span>
+                <span th:if="${doubt.answerType == 'AI'}" style="background: #ffd700; color: #764ba2; font-size: 0.85em; font-weight: 600; border-radius: 6px; padding: 2px 8px; margin-left: 6px;">AI</span>
+            </span>
+            <label>Assigned Mentor</label>
+            <span th:text="${doubt.mentorEmail != null ? doubt.mentorEmail : 'Any Mentor / AI'}"></span>
+        </div>
+        <div class="answer-section">
+            <div th:if="${doubt.status == 'answered'}">
+                <div class="answered">
+                    <strong>Answer:</strong>
+                    <div th:text="${doubt.answer}"></div>
+                </div>
+            </div>
+            <div th:if="${doubt.status != 'answered'}">
+                <div th:if="${doubt.status == 'pending'}" style="margin-bottom: 18px;">
+                    <a th:href="@{'/student/doubt/' + ${doubt.id} + '/edit'}" class="btn" style="background: #007bff; color: #fff; width: auto; border-radius: 50px; padding: 10px 28px; font-size: 1em; margin-right: 10px; text-decoration: none; display: inline-block;">Edit</a>
+                    <form th:action="@{'/student/doubt/' + ${doubt.id} + '/delete'}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this doubt?');">
+                        <button type="submit" class="btn" style="background: #e74c3c; color: #fff; width: auto; border-radius: 50px; padding: 10px 28px; font-size: 1em; border: none; cursor: pointer;">Delete</button>
+                    </form>
+                </div>
+                <div class="pending">
+                    <strong>No answer yet.</strong> Please check back later.
+                </div>
+            </div>
+            <div th:if="${doubt.status == 'answered' and doubt.answerType == 'AI'}" style="margin-top: 18px;">
+                <form th:action="@{'/student/doubt/' + ${doubt.id} + '/request-mentor'}" method="post" style="display:inline;">
+                    <button type="submit" class="btn" style="background: #764ba2; color: #fff; margin-top: 10px;">Not satisfied? Request Mentor Answer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

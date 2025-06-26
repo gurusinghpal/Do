@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Doubt - Doubt Solver</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 480px;
+            margin: 60px auto;
+            background: rgba(255,255,255,0.12);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.2);
+            padding: 40px 32px;
+            color: #fff;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        h1 {
+            font-size: 2em;
+            font-weight: 600;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.85);
+        }
+        .form-control, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 1em;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            resize: none;
+        }
+        .form-control:focus, textarea:focus {
+            outline: none;
+            border-color: rgba(255,255,255,0.7);
+            background: rgba(255,255,255,0.25);
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 50px;
+            border: none;
+            background: rgba(255,255,255,0.9);
+            color: #764ba2;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 18px;
+            color: #fff;
+            text-decoration: underline;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a th:href="@{'/student/doubt/' + ${doubt.id}}" class="back-link">&larr; Back to Doubt</a>
+        <h1>Edit Doubt</h1>
+        <form th:action="@{'/student/doubt/' + ${doubt.id} + '/edit'}" method="post">
+            <div class="form-group">
+                <label for="title">Title</label>
+                <input type="text" id="title" name="title" class="form-control" th:value="${doubt.title}" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" rows="4" class="form-control" th:text="${doubt.description}" required></textarea>
+            </div>
+            <button type="submit" class="btn">Update Doubt</button>
+        </form>
+    </div>
+</body>
+</html> 
