@@ -1,4 +1,4 @@
-# Use an official OpenJDK runtime as a parent image
+# Use an official OpenJDK runtime as a parent image.
 FROM eclipse-temurin:17-jdk
 
 # Set the working directory
