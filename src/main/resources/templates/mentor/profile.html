@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor Profile</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .profile-container {
+            background: rgba(255,255,255,0.13);
+            border-radius: 22px;
+            box-shadow: 0 8px 32px 0 rgba(0,0,0,0.18);
+            padding: 48px 36px 36px 36px;
+            max-width: 420px;
+            width: 100%;
+            color: #222;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            text-align: center;
+        }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #764ba2 60%, #667eea 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px auto;
+            box-shadow: 0 2px 12px rgba(76, 81, 255, 0.13);
+        }
+        .avatar svg {
+            color: #fff;
+            width: 40px;
+            height: 40px;
+        }
+        .profile-name {
+            font-size: 1.5em;
+            font-weight: 600;
+            color: #764ba2;
+            margin-bottom: 4px;
+        }
+        .profile-email {
+            color: #555;
+            font-size: 1em;
+            margin-bottom: 8px;
+        }
+        .profile-role-badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #764ba2 60%, #667eea 100%);
+            color: #fff;
+            font-weight: 600;
+            font-size: 1em;
+            border-radius: 16px;
+            padding: 4px 18px;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(76, 81, 255, 0.10);
+        }
+        .profile-meta {
+            color: #888;
+            font-size: 0.98em;
+            margin-bottom: 18px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 28px 0 18px 0;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.18);
+            border-radius: 12px;
+            padding: 16px 18px;
+            min-width: 80px;
+            color: #222;
+            box-shadow: 0 2px 8px rgba(76, 81, 255, 0.07);
+        }
+        .stat-label {
+            font-size: 0.95em;
+            color: #764ba2;
+            margin-bottom: 4px;
+        }
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        .edit-btn {
+            background: #764ba2;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 12px 32px;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 8px rgba(76, 81, 255, 0.10);
+        }
+        .edit-btn:hover {
+            background: #667eea;
+        }
+        .recent-doubts {
+            margin-top: 28px;
+            text-align: left;
+        }
+        .recent-doubts h3 {
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+        .recent-doubts ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .recent-doubts li {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .recent-doubts a {
+            color: #764ba2;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        .doubt-status {
+            background: #eee;
+            color: #764ba2;
+            border-radius: 8px;
+            padding: 2px 10px;
+            font-size: 0.92em;
+            margin-left: 6px;
+        }
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            inset: 0;
+            background: rgba(0,0,0,0.25);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background: #fff;
+            border-radius: 18px;
+            padding: 32px 28px;
+            min-width: 320px;
+            max-width: 400px;
+            width: 100%;
+            box-sizing: border-box;
+            box-shadow: 0 8px 32px 0 rgba(76, 81, 255, 0.13);
+            position: relative;
+        }
+        .modal-content form label {
+            display: block;
+            margin-top: 16px;
+            margin-bottom: 6px;
+            color: #764ba2;
+            font-weight: 500;
+            text-align: left;
+        }
+        .modal-content form input[type="text"],
+        .modal-content form input[type="password"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .modal-content form input[type="text"]:focus,
+        .modal-content form input[type="password"]:focus {
+            outline: none;
+            border-color: #764ba2;
+        }
+        .modal-content .success-message {
+            color: #27ae60;
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .modal-content form button.edit-btn {
+            width: 100%;
+            margin-top: 18px;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 18px;
+            color: #764ba2;
+            text-decoration: underline;
+            font-size: 1em;
+            font-weight: 500;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+        }
+        .back-link:hover {
+            color: #667eea;
+        }
+        @media (max-width: 480px) {
+            .modal-content {
+                min-width: 0;
+                max-width: 95vw;
+                padding: 18px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <a th:href="@{/mentor/dashboard}" class="back-link">&larr; Back to Dashboard</a>
+        <div class="avatar">
+            <!-- User SVG icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path fill="currentColor" d="M4 20c0-2.21 3.58-4 8-4s8 1.79 8 4v1H4v-1Z" opacity=".4"/></svg>
+        </div>
+        <div class="profile-name" th:text="${mentor.name}">Mentor Name</div>
+        <div class="profile-email" th:text="${mentor.email}">mentor@email.com</div>
+        <div class="profile-role-badge" th:text="${mentor.role}">MENTOR</div>
+        <div class="profile-meta">
+            <span th:if="${mentor.createdAt != null}">Joined: <span th:text="${#temporals.format(mentor.createdAt, 'dd MMM yyyy')}"></span></span>
+        </div>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Total</div>
+                <div class="stat-value" th:text="${totalDoubts}">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Answered</div>
+                <div class="stat-value" th:text="${answeredDoubts}">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Pending</div>
+                <div class="stat-value" th:text="${pendingDoubts}">0</div>
+            </div>
+        </div>
+        <button class="edit-btn" onclick="openEditModal()">Edit Profile</button>
+        <div class="recent-doubts">
+            <h3>Recent Doubts</h3>
+            <ul>
+                <li th:each="doubt : ${recentDoubts}">
+                    <a th:href="@{'/mentor/doubt/' + ${doubt.id}}" th:text="${doubt.title}"></a>
+                    <span class="doubt-status" th:text="${doubt.status}"></span>
+                </li>
+                <li th:if="${#lists.isEmpty(recentDoubts)}">No recent doubts.</li>
+            </ul>
+        </div>
+        <!-- Edit Modal -->
+        <div id="editModal" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditModal()">&times;</span>
+                <h2>Edit Profile</h2>
+                <form th:action="@{/mentor/profile/edit}" method="post">
+                    <div th:if="${param.edited}" class="success-message">Profile updated successfully!</div>
+                    <label for="edit-name">Name</label>
+                    <input id="edit-name" type="text" name="name" th:value="${mentor.name}" required />
+                    <label for="edit-password">Change Password</label>
+                    <input id="edit-password" type="password" name="password" placeholder="New Password" />
+                    <button type="submit" class="edit-btn">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        function openEditModal() {
+            document.getElementById('editModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    </script>
+</body>
+</html> 

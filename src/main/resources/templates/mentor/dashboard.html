@@ -63,14 +63,14 @@
         <div class="logo">Doubt Solver</div>
         <nav class="nav">
             <a href="#" class="active">Assigned Doubts</a>
-            <a href="#">Profile</a>
+            <a th:href="@{/mentor/profile}">Profile</a>
             <a th:href="@{/logout}" class="logout">Logout</a>
         </nav>
     </div>
 
     <div class="container">
         <div class="welcome-banner">
-            <h1>Welcome, Mentor!</h1>
+            <h1>Welcome, Mentor <span th:text="${mentorName}"></span>!</h1>
             <p>Here you can view and answer doubts assigned to you or visible to all mentors.</p>
         </div>
 

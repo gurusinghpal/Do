@@ -47,12 +47,93 @@
             margin-top: 30px;
         }
         .answered {
-            background: rgba(46, 204, 113, 0.15);
-            color: #2ecc71;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background: rgba(255,255,255,0.18);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: #222;
+            padding: 20px 24px;
+            border-radius: 14px;
+            margin-top: 20px;
             font-weight: 500;
+            font-size: 1em;
+            box-shadow: 0 8px 32px 0 rgba(76, 81, 255, 0.10);
+            border-left: 8px solid;
+            border-image: linear-gradient(180deg, #764ba2 0%, #667eea 100%);
+            border-image-slice: 1;
+            position: relative;
+            letter-spacing: 0.01em;
+            transition: box-shadow 0.2s, background 0.2s;
+        }
+        .answered .answer-icon {
+            position: static;
+            transform: none;
+            margin: 0;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            min-height: 36px;
+            background: linear-gradient(135deg, #764ba2 60%, #667eea 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px rgba(76, 81, 255, 0.13);
+        }
+        .answered .answer-icon svg {
+            color: #fff;
+            font-size: 1.3em;
+        }
+        .answered-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .chat-icon {
+            width: 36px;
+            height: 36px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px rgba(76, 81, 255, 0.13);
+            margin-right: 8px;
+        }
+        .answered-content strong {
+            display: block;
+            color: #764ba2;
+            font-size: 1.08em;
+            margin-bottom: 4px;
+            letter-spacing: 0.01em;
+        }
+        .answered-content .answer-text {
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            max-width: 100%;
+            white-space: pre-line;
+        }
+        .answered-content .answer-text ul, .answered-content .answer-text ol {
+            padding-left: 1.5em;
+            margin: 0.5em 0;
+        }
+        .answered-content .answer-text pre, .answered-content .answer-text code {
+            background: #f4f4f4;
+            color: #333;
+            border-radius: 6px;
+            padding: 0.5em 0.8em;
+            font-size: 0.98em;
+            overflow-x: auto;
+            display: block;
+            max-width: 100%;
+            box-sizing: border-box;
+            margin: 0.5em 0;
+        }
+        .answered-content .answer-text code {
+            display: inline;
+            padding: 0.1em 0.3em;
         }
         .pending {
             background: rgba(241, 196, 15, 0.15);
@@ -68,6 +149,28 @@
             color: #fff;
             text-decoration: underline;
             font-size: 1em;
+        }
+        .answer-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .request-mentor-btn {
+            background: linear-gradient(135deg, #764ba2 60%, #667eea 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 28px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(76, 81, 255, 0.10);
+            transition: background 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        .request-mentor-btn:hover {
+            background: linear-gradient(135deg, #667eea 60%, #764ba2 100%);
+            box-shadow: 0 4px 16px rgba(76, 81, 255, 0.18);
         }
     </style>
 </head>
@@ -93,8 +196,15 @@
         <div class="answer-section">
             <div th:if="${doubt.status == 'answered'}">
                 <div class="answered">
-                    <strong>Answer:</strong>
-                    <div th:text="${doubt.answer}"></div>
+                    <div class="answered-content">
+                        <div class="answer-header">
+                            <span class="answer-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path fill="currentColor" d="M12 22c-.28 0-.53-.11-.71-.29l-3.39-3.39c-.09-.09-.22-.15-.35-.15H6c-2.21 0-4-1.79-4-4V6c0-2.21 1.79-4 4-4h12c2.21 0 4 1.79 4 4v8c0 2.21-1.79 4-4 4h-1.55c-.13 0-.26.05-.35.15l-3.39 3.39c-.18.18-.43.29-.71.29ZM6 4c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h1.55c.53 0 1.04.21 1.41.59l2.04 2.04 2.04-2.04c.37-.38.88-.59 1.41-.59H18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H6Z"/></svg>
+                            </span>
+                            <strong>Answer:</strong>
+                        </div>
+                        <div th:utext="${doubt.answer}" class="answer-text"></div>
+                    </div>
                 </div>
             </div>
             <div th:if="${doubt.status != 'answered'}">
@@ -110,7 +220,7 @@
             </div>
             <div th:if="${doubt.status == 'answered' and doubt.answerType == 'AI'}" style="margin-top: 18px;">
                 <form th:action="@{'/student/doubt/' + ${doubt.id} + '/request-mentor'}" method="post" style="display:inline;">
-                    <button type="submit" class="btn" style="background: #764ba2; color: #fff; margin-top: 10px;">Not satisfied? Request Mentor Answer</button>
+                    <button type="submit" class="request-mentor-btn">Not satisfied? Request Mentor Answer</button>
                 </form>
             </div>
         </div>

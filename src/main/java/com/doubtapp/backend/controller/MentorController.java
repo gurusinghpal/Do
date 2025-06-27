@@ -3,7 +3,10 @@ package com.doubtapp.backend.controller;
 import com.doubtapp.backend.model.Doubt;
 import com.doubtapp.backend.repository.DoubtRepository;
 import com.doubtapp.backend.service.DoubtService;
+import com.doubtapp.backend.repository.UserRepository;
+import com.doubtapp.backend.model.User;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +18,14 @@ import java.util.Optional;
 public class MentorController {
     private final DoubtRepository doubtRepository;
     private final DoubtService doubtService;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public MentorController(DoubtRepository doubtRepository, DoubtService doubtService) {
+    public MentorController(DoubtRepository doubtRepository, DoubtService doubtService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.doubtRepository = doubtRepository;
         this.doubtService = doubtService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/dashboard")
@@ -26,6 +33,8 @@ public class MentorController {
         String mentorEmail = authentication.getName();
         List<Doubt> doubts = doubtRepository.findByMentorEmailOrMentorEmailIsNull(mentorEmail);
         model.addAttribute("doubts", doubts);
+        User mentor = userRepository.findByEmail(mentorEmail);
+        model.addAttribute("mentorName", mentor != null ? mentor.getName() : "Mentor");
         return "mentor/dashboard";
     }
 
@@ -91,5 +100,42 @@ public class MentorController {
             }
         }
         return "redirect:/mentor/dashboard";
+    }
+
+    @GetMapping("/profile")
+    public String mentorProfile(Authentication authentication, Model model) {
+        String mentorEmail = authentication.getName();
+        User mentor = userRepository.findByEmail(mentorEmail);
+        model.addAttribute("mentor", mentor);
+        // Stats
+        List<Doubt> allDoubts = doubtRepository.findByMentorEmailOrMentorEmailIsNull(mentorEmail);
+        long total = allDoubts.size();
+        long answered = allDoubts.stream().filter(d -> "answered".equalsIgnoreCase(d.getStatus())).count();
+        long pending = allDoubts.stream().filter(d -> "pending".equalsIgnoreCase(d.getStatus())).count();
+        model.addAttribute("totalDoubts", total);
+        model.addAttribute("answeredDoubts", answered);
+        model.addAttribute("pendingDoubts", pending);
+        // Recent doubts (last 3)
+        allDoubts.sort((a, b) -> b.getId().compareTo(a.getId()));
+        model.addAttribute("recentDoubts", allDoubts.stream().limit(3).toList());
+        return "mentor/profile";
+    }
+
+    @PostMapping("/profile/edit")
+    public String editProfile(
+        @RequestParam String name,
+        @RequestParam(required = false) String password,
+        Authentication authentication
+    ) {
+        String email = authentication.getName();
+        User mentor = userRepository.findByEmail(email);
+        if (mentor != null) {
+            mentor.setName(name);
+            if (password != null && !password.isBlank()) {
+                mentor.setPassword(passwordEncoder.encode(password));
+            }
+            userRepository.save(mentor);
+        }
+        return "redirect:/mentor/profile?edited";
     }
 } 

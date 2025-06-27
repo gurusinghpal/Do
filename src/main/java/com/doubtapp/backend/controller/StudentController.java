@@ -7,6 +7,7 @@ import com.doubtapp.backend.repository.UserRepository;
 import com.doubtapp.backend.service.DoubtService;
 import com.doubtapp.backend.dto.StudentUpdateRequest;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,16 +22,20 @@ import java.util.List;
 public class StudentController {
     private final UserRepository userRepository;
     private final DoubtService doubtService;
+    private final PasswordEncoder passwordEncoder;
 
-    public StudentController(UserRepository userRepository, DoubtService doubtService) {
+    public StudentController(UserRepository userRepository, DoubtService doubtService, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.doubtService = doubtService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping("/dashboard")
     public String studentDashboard(Authentication authentication, Model model) {
         String studentEmail = authentication.getName();
         model.addAttribute("doubts", doubtService.getDoubtsByStudent(studentEmail));
+        User student = userRepository.findByEmail(studentEmail);
+        model.addAttribute("studentName", student != null ? student.getName() : "Student");
         return "student/dashboard";
     }
 
@@ -129,5 +134,44 @@ public class StudentController {
             doubtService.deleteDoubtByStudent(id, doubt.getStudentEmail());
         }
         return "redirect:/student/dashboard";
+    }
+
+    @GetMapping("/profile")
+    public String studentProfile(Authentication authentication, Model model) {
+        String studentEmail = authentication.getName();
+        User student = userRepository.findByEmail(studentEmail);
+        model.addAttribute("student", student);
+        // Stats
+        List<Doubt> allDoubts = doubtService.getDoubtsByStudent(studentEmail);
+        long total = allDoubts.size();
+        long answered = allDoubts.stream().filter(d -> "answered".equalsIgnoreCase(d.getStatus())).count();
+        long pending = allDoubts.stream().filter(d -> "pending".equalsIgnoreCase(d.getStatus())).count();
+        model.addAttribute("totalDoubts", total);
+        model.addAttribute("answeredDoubts", answered);
+        model.addAttribute("pendingDoubts", pending);
+        // Recent doubts (last 3)
+        allDoubts.sort((a, b) -> b.getId().compareTo(a.getId()));
+        model.addAttribute("recentDoubts", allDoubts.stream().limit(3).toList());
+        // Registration date (if available)
+        model.addAttribute("registrationDate", student != null ? student.getCreatedAt() : null);
+        return "student/profile";
+    }
+
+    @PostMapping("/profile/edit")
+    public String editProfile(
+        @RequestParam String name,
+        @RequestParam(required = false) String password,
+        Authentication authentication
+    ) {
+        String email = authentication.getName();
+        User student = userRepository.findByEmail(email);
+        if (student != null) {
+            student.setName(name);
+            if (password != null && !password.isBlank()) {
+                student.setPassword(passwordEncoder.encode(password));
+            }
+            userRepository.save(student);
+        }
+        return "redirect:/student/profile?edited";
     }
 } 

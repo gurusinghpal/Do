@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.time.LocalDateTime;
 
 @Entity
 @Data
@@ -29,6 +30,14 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -58,5 +67,9 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 }
