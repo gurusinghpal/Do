@@ -1,14 +1,12 @@
-# Use an official OpenJDK runtime as a parent image.
-FROM eclipse-temurin:17-jdk
-
-# Set the working directory
+# ---- Build Stage ----
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
+COPY . .
+RUN ./mvnw clean package -DskipTests
 
-# Copy the built jar file (make sure to build it first)
-COPY target/*.jar app.jar
-
-# Expose port 8080 (or your app's port)
+# ---- Run Stage ----
+FROM eclipse-temurin:17-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8081
-
-# Run the jar file
 ENTRYPOINT ["java", "-jar", "app.jar"] 
