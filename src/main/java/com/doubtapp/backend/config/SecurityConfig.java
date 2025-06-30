@@ -27,7 +27,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         // Publicly accessible pages and static resources
-                        .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/", "/login", "/register", "/about", "/css/**", "/js/**", "/images/**", "/static/**", "/*.png").permitAll()
 
                         // Admin-only endpoints
                         .requestMatchers("/api/test/**").hasRole("ADMIN")
