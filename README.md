@@ -29,15 +29,6 @@ An intelligent, modern platform connecting students and mentors for instant doub
 
 ---
 
-## 🖥️ Screenshots
-
-- **Home Page:**  
-  ![Home](src/main/resources/static/shaq.png) <!-- Replace with actual screenshots if available -->
-
-- **About Page:**  
-  Features mission, highlights, and team section.
-
----
 
 ## 🛠️ Tech Stack
 
